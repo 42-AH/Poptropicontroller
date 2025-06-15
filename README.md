@@ -21,3 +21,5 @@ Click: Simply clicks. Best used outside of movement mode, for interactions.
 
 ### Other
 Feel free to change any other variable, these are just the ones that work best for me.
+
+## MAKE SURE YOUR POPTROPICA WINDOW IS CENTERED IN THE MIDDLE OF YOUR MONITOR
