@@ -29,7 +29,7 @@ except:
         pyautogui.moveTo(int(x), int(y))
 
 
-class PS2ControllerMouseControl:
+class ControllerMouseControl:
     def __init__(self):
         # Initialize pygame for joystick support
         pygame.init()
@@ -91,7 +91,6 @@ class PS2ControllerMouseControl:
 
         # Jump button settings
         self.jump_button = 3  # Default jump button (Square button)
-        self.jump_distance = 100  # Distance for jump movement
         self.jump_pending = False  # Flag for pending jump
         self.jump_start_time = 0  # Timing for jump
         self.jump_target_x = 0  # Target X position for jump
@@ -119,7 +118,7 @@ class PS2ControllerMouseControl:
 
     def setup_gui(self):
         self.root = tk.Tk()
-        self.root.title("Smooth PS2 Controller Mouse Control")
+        self.root.title("Smooth Controller Mouse Control")
         self.root.geometry("450x1000")  # Increased height for new settings
 
         # Controller selection
@@ -201,13 +200,13 @@ class PS2ControllerMouseControl:
                     textvariable=self.distance_var, width=10).pack(side="right")
 
         # Controller Action Settings Frame
-        controller_action_frame = ttk.LabelFrame(self.root, text="Controller Action Settings")
+        controller_action_frame = ttk.LabelFrame(self.root, text="Jump settings")
         controller_action_frame.pack(pady=10, padx=10, fill="x")
 
         # Action button selection
         action_btn_frame = ttk.Frame(controller_action_frame)
         action_btn_frame.pack(fill="x", padx=5, pady=2)
-        ttk.Label(action_btn_frame, text="Action Button ID:").pack(side="left")
+        ttk.Label(action_btn_frame, text="Jump Button ID:").pack(side="left")
         self.action_btn_var = tk.IntVar(value=self.controller_action_button)
         ttk.Spinbox(action_btn_frame, from_=0, to=15, textvariable=self.action_btn_var, width=10).pack(side="right")
 
@@ -220,32 +219,10 @@ class PS2ControllerMouseControl:
                     textvariable=self.action_duration_var, width=10).pack(side="right")
 
         # Action explanation
-        ttk.Label(controller_action_frame, text="Action: Move to top → Click down → Hold → Release → Return to center",
+        ttk.Label(controller_action_frame, text="Jump: Move to top → Click down → Hold → Release → Return to center",
                   font=("Arial", 8), wraplength=400).pack(pady=5)
 
-        # Jump Settings Frame
-        jump_frame = ttk.LabelFrame(self.root, text="Jump Movement Settings")
-        jump_frame.pack(pady=10, padx=10, fill="x")
 
-        # Jump button selection
-        jump_btn_frame = ttk.Frame(jump_frame)
-        jump_btn_frame.pack(fill="x", padx=5, pady=2)
-        ttk.Label(jump_btn_frame, text="Jump Button ID:").pack(side="left")
-        self.jump_btn_var = tk.IntVar(value=self.jump_button)
-        ttk.Spinbox(jump_btn_frame, from_=0, to=15, textvariable=self.jump_btn_var, width=10).pack(side="right")
-
-        # Jump distance
-        jump_distance_frame = ttk.Frame(jump_frame)
-        jump_distance_frame.pack(fill="x", padx=5, pady=2)
-        ttk.Label(jump_distance_frame, text="Jump Distance:").pack(side="left")
-        self.jump_distance_var = tk.IntVar(value=self.jump_distance)
-        ttk.Spinbox(jump_distance_frame, from_=25, to=200, increment=25,
-                    textvariable=self.jump_distance_var, width=10).pack(side="right")
-
-        # Jump explanation
-        ttk.Label(jump_frame,
-                  text="In Limited Mode: Normal movement in circle, Jump = instant 45° movement in stick direction",
-                  font=("Arial", 8), wraplength=400).pack(pady=5)
 
         # Button mappings frame
         button_frame = ttk.LabelFrame(self.root, text="Button Mappings")
@@ -261,7 +238,7 @@ class PS2ControllerMouseControl:
         # Limit trigger
         limit_frame = ttk.Frame(button_frame)
         limit_frame.pack(fill="x", padx=5, pady=2)
-        ttk.Label(limit_frame, text="Limit Mode Trigger:").pack(side="left")
+        ttk.Label(limit_frame, text="Movement Mode Trigger:").pack(side="left")
         self.limit_var = tk.IntVar(value=self.limit_trigger_id)
         ttk.Spinbox(limit_frame, from_=0, to=15, textvariable=self.limit_var, width=10).pack(side="right")
 
@@ -272,12 +249,7 @@ class PS2ControllerMouseControl:
         self.stop_btn_var = tk.IntVar(value=self.stop_button_id)
         ttk.Spinbox(stop_btn_frame, from_=0, to=15, textvariable=self.stop_btn_var, width=10).pack(side="right")
 
-        # Quick action button
-        quick_frame = ttk.Frame(button_frame)
-        quick_frame.pack(fill="x", padx=5, pady=2)
-        ttk.Label(quick_frame, text="Quick Top-Click Button:").pack(side="left")
-        self.quick_var = tk.IntVar(value=self.quick_action_button)
-        ttk.Spinbox(quick_frame, from_=0, to=15, textvariable=self.quick_var, width=10).pack(side="right")
+
 
         # Control buttons
         control_frame = ttk.Frame(self.root)
@@ -359,15 +331,12 @@ class PS2ControllerMouseControl:
             self.stop_button_id = self.stop_btn_var.get()
             self.limit_trigger_id = self.limit_var.get()
             self.auto_click_enabled = self.auto_click_var.get()
-            self.quick_action_button = self.quick_var.get()
 
             # Update controller action settings
             self.controller_action_button = self.action_btn_var.get()
             self.controller_hold_duration = self.action_duration_var.get()
 
             # Update jump settings
-            self.jump_button = self.jump_btn_var.get()
-            self.jump_distance = self.jump_distance_var.get()
 
             # Reset state
             self.mouse_held = False
@@ -502,7 +471,7 @@ class PS2ControllerMouseControl:
                 # Handle quick action - trigger on button press (not hold)
                 if quick_pressed and not prev_quick_pressed:
                     if self.limited_mode and self.limited_mode_center:
-                        self.quick_action_pending = True
+                        self.quick_action_pending = False
                         self.quick_action_start_time = current_time
 
                 prev_quick_pressed = quick_pressed
@@ -791,7 +760,7 @@ class PS2ControllerMouseControl:
         if abs(stick_x) < 0.1 and abs(stick_y) < 0.1:
             # Standing still - jump straight up
             self.jump_target_x = center_x
-            self.jump_target_y = center_y - self.jump_distance
+            self.jump_target_y = center_y
         else:
             # Moving - jump at EXACTLY 45-degree angle in the direction of stick movement
             # Normalize the stick input to get pure direction
@@ -802,12 +771,12 @@ class PS2ControllerMouseControl:
                 norm_y = stick_y / magnitude
 
                 # Apply jump distance in that exact direction
-                self.jump_target_x = center_x + (norm_x * self.jump_distance)
-                self.jump_target_y = center_y + (norm_y * self.jump_distance)
+                self.jump_target_x = center_x + norm_x
+                self.jump_target_y = center_y + norm_y
             else:
                 # Fallback to straight up
                 self.jump_target_x = center_x
-                self.jump_target_y = center_y - self.jump_distance
+                self.jump_target_y = center_y
 
         # Constrain jump target to circular boundary
         dx = self.jump_target_x - center_x
@@ -887,5 +856,5 @@ if __name__ == "__main__":
         print("Missing packages. Install with: pip install pygame pyautogui")
         exit(1)
 
-    app = PS2ControllerMouseControl()
+    app = ControllerMouseControl()
     app.run()
