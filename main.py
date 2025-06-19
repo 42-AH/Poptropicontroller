@@ -13,7 +13,6 @@ try:
     user32 = ctypes.windll.user32
     kernel32 = ctypes.windll.kernel32
 
-
     # Define Windows API functions for smoother mouse control
     def smooth_move_mouse(x, y):
         user32.SetCursorPos(int(x), int(y))
@@ -21,8 +20,9 @@ try:
 
     # Use Windows API if available, fallback to pyautogui
     USE_WINDOWS_API = True
-except:
+except e as e:
     USE_WINDOWS_API = False
+    print(f"Error has occurred, \f")
 
 
     def smooth_move_mouse(x, y):
@@ -581,21 +581,6 @@ class ControllerMouseControl:
         # Update target position
         self.target_mouse_pos[0] += self.velocity_x
         self.target_mouse_pos[1] += self.velocity_y
-
-    def handle_limited_movement(self, smooth_x, smooth_y, dt):
-        """Handle limited movement mode - HORIZONTAL ONLY"""
-        sensitivity = self.limited_sensitivity * self.speed_multiplier
-        center_x, center_y = self.limited_mode_center
-
-        # Only use X-axis input, ignore Y-axis for normal movement
-        if abs(smooth_x) > 0.01:
-            # Move horizontally only within constrained area
-            target_vel_x = smooth_x * sensitivity
-
-    def handle_limited_movement(self, smooth_x, smooth_y, dt):
-        """Handle limited movement mode - BOTH X AND Y AXIS CONTROL HORIZONTAL MOVEMENT"""
-        sensitivity = self.limited_sensitivity * self.speed_multiplier
-        center_x, center_y = self.limited_mode_center
 
     def handle_limited_movement(self, smooth_x, smooth_y, dt):
         """Handle limited movement mode - X=horizontal, Y=vertical within restricted area"""
